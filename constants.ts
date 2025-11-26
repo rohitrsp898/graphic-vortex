@@ -1,9 +1,35 @@
-import { Project, SocialLink } from './types';
+import { SocialLink, Project } from './types';
 
-// =========================================================================
-// MASTER CONFIGURATION
-// Update your details here, and they will reflect across the entire app.
-// =========================================================================
+// Helper to convert Drive view links to direct image links
+// Using lh3.googleusercontent.com is often more reliable for hosting images than drive.google.com/uc
+const getDriveDirectLink = (url: string) => {
+  try {
+    // Extract ID from /file/d/ID/ or /open?id=ID
+    const match = url.match(/\/d\/(.+?)(\/|\?|$)/) || url.match(/id=(.+?)($|&)/);
+    if (match && match[1]) {
+      // Use the Googleusercontent CDN format which is more reliable for image embedding
+      return `https://lh3.googleusercontent.com/d/${match[1]}`;
+    }
+    return url;
+  } catch (e) {
+    return url;
+  }
+};
+
+export const SOCIAL_LINKS: SocialLink[] = [
+  { platform: 'Instagram', url: 'https://www.instagram.com/graphic_vortex_', iconName: 'Instagram' },
+  { platform: 'LinkedIn', url: 'https://www.linkedin.com/in/akash--prajapati/', iconName: 'Linkedin' },
+];
+
+export const ABOUT_CONTENT = `
+ I am a passionate graphic designer with over 3+ years of experience in branding, digital illustration, and graphic design. 
+ My journey began with a love for traditional art, which evolved into a career in digital creativity. 
+ I believe that good design is not just about making things look good—it's about effective communication and solving problems visually. Every line, color, and shape serves a purpose.
+`;
+
+export const SKILLS = [
+  "Adobe Photoshop", "Adobe Illustrator", "Brand Identity", "Typography", "CorelDraw", "Print Design"
+];
 
 export const PERSONAL_DETAILS = {
   name: "Akash Prajapati",
@@ -12,56 +38,12 @@ export const PERSONAL_DETAILS = {
   tagline: "I craft digital experiences that blend aesthetic beauty with functional design.",
 };
 
+const logoDriveLink = "https://drive.google.com/file/d/1JTRDm92m8ftXB_OY6dt5W_q9kRfA8pIa/view";
 export const BRAND_DETAILS = {
-  name: "Graphic.Vortex",
-  // Google Drive Link for the logo
-  logoUrl: "https://drive.google.com/file/d/1JTRDm92m8ftXB_OY6dt5W_q9kRfA8pIa/view", 
+  name: "Graphic Vortex",
+  logoUrl: getDriveDirectLink(logoDriveLink),
   logoAlt: "Graphic Vortex Logo",
   showLogoImage: true
-};
-
-// =========================================================================
-// HELPER FUNCTIONS
-// =========================================================================
-
-// Helper to convert Drive links to direct view links
-/**
- * Converts a Google Drive share link into a direct image URL.
- * Works with standard "view" links and "open" links.
- */
-export const getDriveDirectLink = (url: string): string => {
-  if (!url) return '';
-
-  // Check if it is a Google Drive link
-  if (url.includes('drive.google.com')) {
-    // Try to extract the ID
-    // Patterns: /file/d/<ID>/view, id=<ID>
-    const match = url.match(/\/d\/(.+?)\/|id=(.+?)(&|$)/);
-    const id = match ? (match[1] || match[2]) : null;
-
-    if (id) {
-      // Use the thumbnail API with a large size (w1920) to get a high-quality direct image
-      return `https://drive.google.com/thumbnail?id=${id}&sz=w1920`;
-    }
-  }
-
-  return url;
-};
-
-// =========================================================================
-// DERIVED CONSTANTS (Do not modify unless changing structure)
-// =========================================================================
-
-export const BRAND_LOGO = {
-  src: BRAND_DETAILS.logoUrl,
-  alt: BRAND_DETAILS.logoAlt,
-  showImage: BRAND_DETAILS.showLogoImage
-};
-
-export const HERO_CONTENT = {
-  name: PERSONAL_DETAILS.name,
-  title: PERSONAL_DETAILS.role,
-  tagline: PERSONAL_DETAILS.tagline,
 };
 
 export const PORTFOLIO_DATA: Project[] = [
@@ -155,17 +137,5 @@ export const PORTFOLIO_DATA: Project[] = [
   }
 ];
 
-export const SOCIAL_LINKS: SocialLink[] = [
-  { platform: 'Instagram', url: 'https://www.instagram.com/graphic_vortex_', iconName: 'Instagram' },
-  { platform: 'LinkedIn', url: 'https://www.linkedin.com/in/akash--prajapati/', iconName: 'Linkedin' },
-];
-
-export const ABOUT_CONTENT = `
- I am a passionate graphic designer with over 3+ years of experience in branding, digital illustration, and graphic design. 
-  My journey began with a love for traditional art, which evolved into a career in digital creativity. 
-  I believe that good design is not just about making things look good—it's about effective communication and solving problems visually. Every line, color, and shape serves a purpose.
-`;
-
-export const SKILLS = [
-  "Adobe Photoshop", "Adobe Illustrator", "Brand Identity", "Typography", "CorelDraw", "Print Design"
-];
+// For backward compatibility
+export const PORTFOLIO_ITEMS = PORTFOLIO_DATA;
