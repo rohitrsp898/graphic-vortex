@@ -1,49 +1,50 @@
-import { GoogleGenAI, Chat } from "@google/genai";
-import { PORTFOLIO_DATA, ABOUT_CONTENT, SKILLS, PERSONAL_DETAILS } from '../constants';
+import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
+import { PERSONAL_DETAILS, SKILLS, ABOUT_CONTENT } from '../constants';
 
-// Initialize the API only if the key exists to prevent immediate crashes in dev environments without keys
-const apiKey = process.env.API_KEY || '';
-const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
+let ai: GoogleGenAI | null = null;
 
-// Construct a system instruction that gives the AI context about the portfolio
-const SYSTEM_INSTRUCTION = `
-You are "GraphicVortex", an AI assistant for ${PERSONAL_DETAILS.name}'s portfolio website.
-Your goal is to answer visitor questions about ${PERSONAL_DETAILS.name}'s work, skills, and availability effectively and professionally.
-
-Context about ${PERSONAL_DETAILS.name}:
-- About: ${ABOUT_CONTENT}
-- Skills: ${SKILLS.join(', ')}
-- Portfolio Projects: ${PORTFOLIO_DATA.map(p => `${p.title} (${p.category})`).join(', ')}
-
-Guidelines:
-- Be polite, professional, yet creative.
-- If asked about a specific project mentioned in the context, provide details.
-- If asked about contact info, suggest they use the contact form below.
-- Keep responses concise (under 100 words) unless asked for a detailed explanation.
-- If the user asks about design services not listed, say ${PERSONAL_DETAILS.name} is open to discussing custom projects.
-`;
-
-let chatSession: Chat | null = null;
-
-export const getChatResponse = async (userMessage: string): Promise<string> => {
+const getAIClient = (): GoogleGenAI => {
   if (!ai) {
-    return "I'm currently offline (API Key missing). Please check back later!";
-  }
-
-  try {
-    if (!chatSession) {
-      chatSession = ai.chats.create({
-        model: 'gemini-2.5-flash',
-        config: {
-          systemInstruction: SYSTEM_INSTRUCTION,
-        },
-      });
+    if (!process.env.API_KEY) {
+      console.warn("API_KEY not found in environment variables. Gemini features will be disabled.");
+      throw new Error("API Key missing");
     }
+    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  }
+  return ai;
+};
 
-    const result = await chatSession.sendMessage({ message: userMessage });
-    return result.text || "I didn't catch that. Could you rephrase?";
+export const generateDesignAdvice = async (userPrompt: string): Promise<string> => {
+  try {
+    const client = getAIClient();
+    
+    // Context injection for the persona
+    const systemPrompt = `
+      You are the AI Assistant for ${PERSONAL_DETAILS.name}'s portfolio website, "Graphic Vortex".
+      
+      Details about the designer:
+      - Role: ${PERSONAL_DETAILS.role}
+      - Skills: ${SKILLS.join(', ')}
+      - About: ${ABOUT_CONTENT}
+      - Style: Aesthetic, functional, modern, vortex-themed.
+      
+      Your goal is to answer questions from potential clients or visitors about design, or about Akash's background.
+      Keep answers concise (under 100 words), professional, yet creative and friendly.
+      If asked for a quote, give a range based on typical freelance graphic design rates (hypothetical).
+      If asked to generate an image, politely explain you are a text-based assistant here to discuss design concepts.
+    `;
+
+    const response: GenerateContentResponse = await client.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: userPrompt,
+      config: {
+        systemInstruction: systemPrompt,
+      }
+    });
+
+    return response.text || "I'm having a bit of trouble visualizing that right now. Could you ask differently?";
   } catch (error) {
     console.error("Gemini API Error:", error);
-    return "Sorry, I'm having trouble connecting to my creative brain right now.";
+    return "I'm currently offline due to a connection issue. Please feel free to email Akash directly!";
   }
 };

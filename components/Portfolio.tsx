@@ -1,117 +1,246 @@
-import React, { useState, useMemo } from 'react';
-import { Project } from '../types';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, X, Calendar, Wrench, Tag as TagIcon } from 'lucide-react';
 import { PORTFOLIO_DATA } from '../constants';
-import ProjectModal from './ProjectModal';
-import { Maximize2 } from 'lucide-react';
+import { Project } from '../types';
 
-interface PortfolioProps {
-  scrollToContact: () => void;
-}
-
-const Portfolio: React.FC<PortfolioProps> = ({ scrollToContact }) => {
-  const [activeCategory, setActiveCategory] = useState<string>('All');
+export const Portfolio: React.FC = () => {
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  
+  // Extract unique categories
+  const categories = ['All', ...Array.from(new Set(PORTFOLIO_DATA.map(item => item.category)))];
 
-  // Dynamically extract unique categories from the data
-  const categories = useMemo(() => {
-    const uniqueCategories = new Set(PORTFOLIO_DATA.map(p => p.category));
-    return ['All', ...Array.from(uniqueCategories)];
-  }, []);
-
-  const filteredProjects = activeCategory === 'All'
-    ? PORTFOLIO_DATA
-    : PORTFOLIO_DATA.filter(project => project.category === activeCategory);
+  // Filter Data
+  const filteredData = selectedCategory === 'All' 
+    ? PORTFOLIO_DATA 
+    : PORTFOLIO_DATA.filter(item => item.category === selectedCategory);
 
   return (
-    <section id="portfolio" className="py-24 px-6 max-w-7xl mx-auto scroll-mt-20">
-      <div className="mb-16">
-        <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-6">Selected Works</h2>
-        
-        {/* Filter Tabs */}
-        <div className="flex flex-wrap gap-4">
+    <section id="work" className="bg-neutral-950 relative min-h-screen py-20">
+      
+      {/* Header & Filter Bar */}
+      <div className="container mx-auto px-4 mb-12">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-10"
+        >
+            <h2 className="text-4xl md:text-6xl font-serif font-bold text-white mb-4">Selected Works</h2>
+            <p className="text-neutral-400 max-w-2xl mx-auto">Curated collection of digital experiences. Click on any project to see details.</p>
+        </motion.div>
+
+        {/* Categories */}
+        <div className="flex flex-wrap justify-center gap-2 mb-12">
           {categories.map((cat) => (
             <button
               key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 text-sm uppercase tracking-wider rounded-full border transition-all ${
-                activeCategory === cat
-                  ? 'bg-white text-black border-white'
-                  : 'bg-transparent text-gray-400 border-gray-800 hover:border-gray-600'
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-2 rounded-full text-sm border transition-all duration-300 ${
+                selectedCategory === cat
+                  ? 'bg-white text-black border-white font-medium'
+                  : 'bg-transparent text-neutral-400 border-neutral-800 hover:border-neutral-600 hover:text-white'
               }`}
             >
               {cat}
             </button>
           ))}
         </div>
-      </div>
 
-      {/* Grid with specialized spans for orientations */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 grid-flow-row-dense">
-        {filteredProjects.map((project) => {
-          // Determine grid span based on orientation
-          const spanClass = project.orientation === 'landscape' 
-            ? 'md:col-span-2' 
-            : 'md:col-span-1';
-
-          // Determine aspect ratio based on orientation
-          const aspectClass = project.orientation === 'landscape' 
-            ? 'aspect-video' 
-            : project.orientation === 'square' 
-              ? 'aspect-square' 
-              : 'aspect-[3/4]';
-
-          return (
-            <div 
-              key={project.id} 
-              className={`group relative cursor-pointer ${spanClass}`}
-              onClick={() => setSelectedProject(project)}
-            >
-              <div className={`relative overflow-hidden rounded-lg bg-[#1a1a1a] w-full ${aspectClass}`}>
-                <img 
-                  src={project.imageUrl} 
-                  alt={project.title} 
-                  loading="lazy"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100"
+        {/* Grid View */}
+        <motion.div 
+            layout
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+            <AnimatePresence mode="popLayout">
+            {filteredData.map((project) => (
+                <GridProjectCard 
+                    key={project.id} 
+                    project={project} 
+                    onClick={() => setSelectedProject(project)}
                 />
-                
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                  <span className="text-accent text-xs uppercase tracking-wider mb-2 font-bold translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                    {project.category}
-                  </span>
-                  <h3 className="text-xl text-white font-serif font-bold translate-y-2 group-hover:translate-y-0 transition-transform duration-300 delay-75">
-                    {project.title}
-                  </h3>
-                  
-                  {/* Maximize Icon */}
-                  <div className="absolute top-4 right-4 bg-black/50 p-2 rounded-full backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all delay-100">
-                    <Maximize2 size={20} className="text-white" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      
-      {filteredProjects.length === 0 && (
-        <div className="text-center text-gray-500 py-20">
-          No projects found in this category.
-        </div>
-      )}
+            ))}
+            </AnimatePresence>
+        </motion.div>
 
-      {selectedProject && (
-        <ProjectModal 
-          project={selectedProject} 
-          onClose={() => setSelectedProject(null)} 
-          onContact={() => {
-            setSelectedProject(null);
-            scrollToContact();
-          }}
-        />
-      )}
+        {filteredData.length === 0 && (
+            <div className="text-center py-20 text-neutral-500">
+                No projects found in this category.
+            </div>
+        )}
+      </div>
+
+      {/* Project Detail Modal */}
+      <AnimatePresence>
+        {selectedProject && (
+          <ProjectModal 
+            project={selectedProject} 
+            onClose={() => setSelectedProject(null)} 
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 };
 
-export default Portfolio;
+const GridProjectCard: React.FC<{ project: Project; onClick: () => void }> = ({ project, onClick }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  return (
+    <motion.div 
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      whileHover={{ y: -5 }}
+      viewport={{ once: true, amount: 0.1 }}
+      transition={{ duration: 0.4 }}
+      onClick={onClick}
+      className="group relative aspect-[4/5] rounded-xl overflow-hidden bg-neutral-900 border border-neutral-800 cursor-pointer shadow-lg"
+    >
+      {/* Loading Skeleton */}
+      {!imageLoaded && (
+        <div className="absolute inset-0 bg-neutral-800 animate-pulse z-0" />
+      )}
+      
+      <img
+        src={project.imageUrl}
+        alt={project.title}
+        referrerPolicy="no-referrer"
+        loading="lazy"
+        draggable="false"
+        onContextMenu={(e) => e.preventDefault()}
+        onLoad={() => setImageLoaded(true)}
+        className={`w-full h-full object-cover transition-all duration-700 group-hover:scale-110 ${
+          imageLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'
+        }`}
+      />
+      
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 z-10">
+        <p className="text-primary text-xs uppercase tracking-wider mb-2 font-semibold">{project.category}</p>
+        <h3 className="text-2xl font-bold text-white font-serif mb-2">{project.title}</h3>
+        <div className="flex items-center gap-2 text-white/80 text-sm mt-2">
+          <span>View Details</span> <ArrowRight className="w-4 h-4" />
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+const ProjectModal: React.FC<{ project: Project; onClose: () => void }> = ({ project, onClose }) => {
+    const [imageLoaded, setImageLoaded] = useState(false);
+    
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => { document.body.style.overflow = 'unset'; }
+    }, []);
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8">
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={onClose}
+                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div 
+                initial={{ opacity: 0, y: 50, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 50, scale: 0.95 }}
+                className="relative bg-neutral-900 border border-neutral-800 w-full max-w-6xl max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row"
+            >
+                <button 
+                    onClick={onClose}
+                    className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-white hover:text-black rounded-full text-white transition-colors"
+                >
+                    <X className="w-6 h-6" />
+                </button>
+
+                {/* Image Section */}
+                <div className="w-full md:w-3/5 h-[40vh] md:h-auto bg-black relative flex items-center justify-center overflow-hidden">
+                     {!imageLoaded && (
+                        <div className="absolute inset-0 bg-neutral-800 animate-pulse" />
+                     )}
+                     <img
+                        src={project.imageUrl}
+                        alt={project.title}
+                        referrerPolicy="no-referrer"
+                        draggable="false"
+                        onContextMenu={(e) => e.preventDefault()}
+                        onLoad={() => setImageLoaded(true)}
+                        className={`w-full h-full object-contain transition-opacity duration-500 ${
+                            imageLoaded ? 'opacity-100' : 'opacity-0'
+                        }`}
+                    />
+                </div>
+
+                {/* Content Section */}
+                <div className="w-full md:w-2/5 p-8 md:p-10 overflow-y-auto bg-neutral-900 border-l border-neutral-800">
+                    <div className="mb-6">
+                        <span className="inline-block px-3 py-1 bg-primary/20 text-primary text-xs font-bold uppercase tracking-wider rounded-full mb-4">
+                            {project.category}
+                        </span>
+                        <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-4">{project.title}</h2>
+                        <p className="text-neutral-400 leading-relaxed text-lg">
+                            {project.description}
+                        </p>
+                    </div>
+
+                    <div className="space-y-6">
+                        {project.year && (
+                             <div className="flex items-start gap-4">
+                                <div className="p-2 bg-neutral-800 rounded-lg">
+                                    <Calendar className="w-5 h-5 text-neutral-300" />
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-semibold text-white uppercase tracking-wide">Year</h4>
+                                    <p className="text-neutral-400">{project.year}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {project.tools && (
+                             <div className="flex items-start gap-4">
+                                <div className="p-2 bg-neutral-800 rounded-lg">
+                                    <Wrench className="w-5 h-5 text-neutral-300" />
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-semibold text-white uppercase tracking-wide">Tools</h4>
+                                    <div className="flex flex-wrap gap-2 mt-1">
+                                        {project.tools.map(tool => (
+                                            <span key={tool} className="text-sm text-neutral-400 bg-neutral-800 px-2 py-1 rounded">
+                                                {tool}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {project.tags && (
+                             <div className="flex items-start gap-4">
+                                <div className="p-2 bg-neutral-800 rounded-lg">
+                                    <TagIcon className="w-5 h-5 text-neutral-300" />
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-semibold text-white uppercase tracking-wide">Tags</h4>
+                                    <div className="flex flex-wrap gap-2 mt-1">
+                                        {project.tags.map(tag => (
+                                            <span key={tag} className="text-sm text-neutral-500">
+                                                #{tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </motion.div>
+        </div>
+    )
+}

@@ -1,57 +1,97 @@
-import React from 'react';
-import { ArrowDown, Sparkles } from 'lucide-react';
-import { HERO_CONTENT } from '../constants';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { PERSONAL_DETAILS, BRAND_DETAILS } from '../constants';
+import { ArrowDown } from 'lucide-react';
 
-interface HeroProps {
-  scrollToPortfolio: () => void;
-  scrollToContact: () => void;
-}
+export const Hero: React.FC = () => {
+  const [logoLoaded, setLogoLoaded] = useState(false);
 
-const Hero: React.FC<HeroProps> = ({ scrollToPortfolio, scrollToContact }) => {
+  const scrollToWork = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const element = document.getElementById('work');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-neutral-950 text-white">
+      {/* Background gradients */}
+      <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-primary/20 rounded-full blur-[128px] pointer-events-none z-0" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[128px] pointer-events-none z-0" />
       
-      {/* Background Decorative Elements */}
-      <div className="absolute top-0 left-0 w-full h-full z-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[100px] animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-[100px]"></div>
+      {/* Grid Pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)] pointer-events-none z-0" />
+
+      <div className="container mx-auto px-4 relative z-20 flex flex-col items-center text-center">
+        
+        {/* Logo/Avatar */}
+        <motion.div 
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="mb-8 relative"
+        >
+           {/* Glow behind logo */}
+           <div className="absolute inset-0 bg-primary/40 blur-2xl rounded-full" />
+           <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-neutral-900 border-2 border-neutral-800 p-1 relative overflow-hidden flex items-center justify-center shadow-2xl">
+              {!logoLoaded && <div className="absolute inset-0 bg-neutral-800 animate-pulse" />}
+              <img 
+                src={BRAND_DETAILS.logoUrl} 
+                alt={BRAND_DETAILS.logoAlt}
+                className={`w-full h-full object-cover rounded-full transition-opacity duration-500 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
+                referrerPolicy="no-referrer"
+                draggable="false"
+                onContextMenu={(e) => e.preventDefault()}
+                onLoad={() => setLogoLoaded(true)}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://ui-avatars.com/api/?name=GV&background=171717&color=fff&size=200&font-size=0.4';
+                  setLogoLoaded(true);
+                }}
+              />
+           </div>
+        </motion.div>
+
+        <motion.h1 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.8 }}
+          className="text-5xl md:text-7xl lg:text-9xl font-bold font-serif tracking-tight mb-4"
+        >
+          {BRAND_DETAILS.name}
+        </motion.h1>
+
+        <motion.p 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.8 }}
+          className="text-xl md:text-2xl text-neutral-400 max-w-2xl mb-8 font-light"
+        >
+          {PERSONAL_DETAILS.tagline}
+        </motion.p>
+
+        <motion.div
+           initial={{ y: 20, opacity: 0 }}
+           animate={{ y: 0, opacity: 1 }}
+           transition={{ delay: 0.6, duration: 0.8 }}
+        >
+           <a 
+            href="#work"
+            onClick={scrollToWork}
+            className="px-8 py-3 rounded-full bg-white text-black font-semibold hover:bg-neutral-200 transition-colors inline-flex items-center gap-2 cursor-pointer z-30 relative"
+           >
+             View Works
+           </a>
+        </motion.div>
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-primary text-xs tracking-widest uppercase mb-6 animate-slide-up">
-          <Sparkles className="w-3 h-3" />
-          <span>Available for freelance</span>
-        </div>
-        
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold text-white mb-6 leading-tight animate-slide-up" style={{ animationDelay: '0.1s' }}>
-          {HERO_CONTENT.name}
-        </h1>
-        
-        <p className="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto mb-10 font-light leading-relaxed animate-slide-up" style={{ animationDelay: '0.2s' }}>
-          {HERO_CONTENT.tagline}
-        </p>
-        
-        <div className="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up" style={{ animationDelay: '0.3s' }}>
-          <button 
-            onClick={scrollToPortfolio}
-            className="px-8 py-3 bg-white text-black font-semibold rounded-full hover:scale-105 transition-transform duration-300"
-          >
-            View Work
-          </button>
-          <button 
-            onClick={scrollToContact}
-            className="px-8 py-3 border border-white/20 text-white font-semibold rounded-full hover:bg-white/10 transition-colors duration-300"
-          >
-            Contact Me
-          </button>
-        </div>
-      </div>
-
-      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <ArrowDown className="w-6 h-6 text-gray-500" />
-      </div>
+      <motion.div 
+        animate={{ y: [0, 10, 0] }}
+        transition={{ duration: 2, repeat: Infinity }}
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-neutral-500 pointer-events-none"
+      >
+        <ArrowDown className="w-6 h-6" />
+      </motion.div>
     </section>
   );
 };
-
-export default Hero;
