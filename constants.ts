@@ -141,6 +141,17 @@ export const PORTFOLIO_DATA: Project[] = [
     tools: ['Photoshop'],
     orientation: 'portrait',
     tags: ['Branding', 'Lifestyle', 'Product', 'Manipulation']
+  },
+   {
+    id: '8',
+    title: 'Time to Revenge',
+    category: 'Movie Poster',
+    imageUrl: getDriveDirectLink('https://drive.google.com/file/d/1BsxCSxb0e-glg0Cr6SY2DsrRQjDnAUzp/view?usp=drive_link'),
+    description: 'The intense battle of transformers',
+    year: '2025',
+    tools: ['Photoshop'],
+    orientation: 'landscape',
+    tags: ['Movie', 'Poster', 'Illustration', 'Manipulation']
   }
 ];
 
