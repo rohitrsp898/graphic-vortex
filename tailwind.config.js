@@ -10,6 +10,7 @@ export default {
         primary: '#6d28d9',
       },
       fontFamily: {
+        poppins: ['"Poppins"', 'sans-serif'],
         serif: ['"Playfair Display"', 'serif'],
         sans: ['"Outfit"', 'sans-serif'],
       },

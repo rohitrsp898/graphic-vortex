@@ -56,7 +56,7 @@ export const Hero: React.FC = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.8 }}
-          className="text-5xl md:text-7xl lg:text-9xl font-bold font-serif tracking-tight mb-4"
+          className="text-5xl md:text-7xl lg:text-9xl font-bold font-poppins tracking-tight mb-4"
         >
           {BRAND_DETAILS.name}
         </motion.h1>

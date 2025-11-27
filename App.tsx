@@ -27,7 +27,7 @@ function App() {
         <a 
           href="#" 
           onClick={scrollToTop}
-          className="font-serif font-bold text-xl text-white hover:text-primary transition-colors"
+          className="font-poppins font-bold text-xl text-white hover:text-primary transition-colors"
         >
           Graphic Vortex
         </a>
