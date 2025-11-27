@@ -94,7 +94,7 @@ export const PORTFOLIO_DATA: Project[] = [
   {
     id: '5',
     title: "Haunted Witch House",
-    category: "Fantasy Illustration",
+    category: "Fantasy Poster",
     imageUrl: getDriveDirectLink("https://drive.google.com/file/d/1ql61-4LzbHcRTam-VTWpxAdadLzgMDxw/view?usp=drive_link"),
     description: "A dark and atmospheric illustration depicting an eerie witch house in a stormy night setting. Lit windows, pumpkins, dead trees, and dramatic lighting create a haunting visual narrative.",
     year: "2025",
@@ -118,7 +118,7 @@ export const PORTFOLIO_DATA: Project[] = [
     title: 'Feel the Speed',
     category: 'Product Advertisement',
     imageUrl: getDriveDirectLink('https://drive.google.com/file/d/1m9B9V6dJG5rjCzBSQFUYaQk8wHgbdgUA/view?usp=drive_link'),
-    description: 'Beyond Sound',
+    description: 'Beyond the Sound where speed feels',
     year: '2025',
     tools: ['Photoshop'],
     orientation: 'portrait',
