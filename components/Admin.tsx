@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword, onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { uploadProject, getAllProjects } from '../services/projectService';
-import { Lock, Loader2, Plus, LogOut, Link as LinkIcon, Home, X } from 'lucide-react';
+import { Lock, Loader2, Plus, LogOut, Link as LinkIcon, Home, X, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getDriveDirectLink } from '../constants';
 
@@ -117,7 +117,8 @@ export const Admin: React.FC = () => {
 
       // Handle common Firebase errors with user-friendly messages
       if (err.code === 'permission-denied') {
-        setError("Permission Denied: Your database rules are blocking the write. Please go to Firebase Console > Firestore Database > Rules and set 'allow read, write: if request.auth != null;'");
+        // Use a specific string keyword to trigger the UI helper
+        setError("PERMISSION_DENIED");
       } else if (err.code === 'not-found') {
         setError("Database Not Found: Please create a Firestore Database in the Firebase Console.");
       } else if (err.message) {
@@ -184,6 +185,9 @@ export const Admin: React.FC = () => {
       </div>
     );
   }
+
+  // Helper to get project ID safely for the link
+  const projectId = auth.app.options.projectId || '';
 
   return (
     <div className="min-h-screen bg-neutral-950 p-6 pt-24">
@@ -314,7 +318,40 @@ export const Admin: React.FC = () => {
                     />
                 </div>
 
-                {error && <p className="text-red-500 bg-red-500/10 p-3 rounded-lg text-sm">{error}</p>}
+                {error === "PERMISSION_DENIED" ? (
+                   <div className="text-red-400 bg-red-500/10 p-4 rounded-xl border border-red-500/20">
+                      <div className="flex items-start gap-3">
+                          <div className="p-2 bg-red-500/20 rounded-full">
+                              <Lock className="w-4 h-4 text-red-500" />
+                          </div>
+                          <div className="flex-1">
+                              <h3 className="font-bold text-red-200 mb-1">Permission Denied</h3>
+                              <p className="text-sm text-red-300 mb-3">
+                                  Your Firebase Database is locked. You need to update the Security Rules to allow uploads.
+                              </p>
+
+                              <a
+                                  href={`https://console.firebase.google.com/project/${projectId}/firestore/rules`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-200 rounded-lg text-sm transition-colors font-medium border border-red-500/20"
+                              >
+                                  <ExternalLink className="w-4 h-4" /> Open Firebase Rules
+                              </a>
+
+                              <div className="mt-4 p-3 bg-black/40 rounded-lg border border-neutral-800">
+                                  <p className="text-xs text-neutral-500 mb-2 uppercase font-semibold">Copy & Paste this into Rules:</p>
+                                  <code className="text-xs font-mono text-neutral-300 block overflow-x-auto">
+                                      {`allow read, write: if request.auth != null;`}
+                                  </code>
+                              </div>
+                          </div>
+                      </div>
+                   </div>
+                ) : error ? (
+                   <p className="text-red-500 bg-red-500/10 p-3 rounded-lg text-sm">{error}</p>
+                ) : null}
+
                 {successMsg && <p className="text-green-500 bg-green-500/10 p-3 rounded-lg text-sm">{successMsg}</p>}
 
                 <button
