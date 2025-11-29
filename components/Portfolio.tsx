@@ -4,7 +4,7 @@ import { ArrowRight, X, Calendar, Wrench, Tag as TagIcon, Loader2 } from 'lucide
 import { getAllProjects } from '../services/projectService';
 import { Project } from '../types';
 
-const INITIAL_LIMIT = 10;
+const INITIAL_LIMIT = 9;
 
 export const Portfolio: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
