@@ -75,7 +75,7 @@ export const Admin: React.FC = () => {
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!imageLink || !title || !category) {
-      setError("Please fill in required fields and provide an image link.");
+      setError("Please fill in required fields: Image Link, Title, and Category.");
       return;
     }
 
@@ -84,12 +84,16 @@ export const Admin: React.FC = () => {
     setSuccessMsg('');
 
     try {
+      // Sanitize inputs: remove empty strings from arrays
+      const toolsArray = tools ? tools.split(',').map(t => t.trim()).filter(t => t.length > 0) : [];
+      const tagsArray = tags ? tags.split(',').map(t => t.trim()).filter(t => t.length > 0) : [];
+
       await uploadProject(imageLink, {
         title,
         category,
         description,
-        tools: tools.split(',').map(t => t.trim()),
-        tags: tags.split(',').map(t => t.trim()),
+        tools: toolsArray,
+        tags: tagsArray,
         orientation,
         year: new Date().getFullYear().toString()
       });
@@ -108,9 +112,19 @@ export const Admin: React.FC = () => {
       setIsCustomCategory(false);
       setCategory('');
 
-    } catch (err) {
-      console.error(err);
-      setError("Failed to upload project.");
+    } catch (err: any) {
+      console.error("Upload error details:", err);
+
+      // Handle common Firebase errors with user-friendly messages
+      if (err.code === 'permission-denied') {
+        setError("Permission Denied: Your database rules are blocking the write. Please go to Firebase Console > Firestore Database > Rules and set 'allow read, write: if request.auth != null;'");
+      } else if (err.code === 'not-found') {
+        setError("Database Not Found: Please create a Firestore Database in the Firebase Console.");
+      } else if (err.message) {
+        setError(`Upload Failed: ${err.message}`);
+      } else {
+        setError("Failed to upload project due to an unknown error.");
+      }
     } finally {
       setLoading(false);
     }

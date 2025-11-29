@@ -31,12 +31,19 @@ export const uploadProject = async (
   details: Omit<Project, 'id' | 'imageUrl'>
 ): Promise<void> => {
   // We expect the user to provide a Google Drive Link
+  if (!imageUrl) throw new Error("Image URL is required");
+
   // We process it to ensure it's a direct link
   const directLink = getDriveDirectLink(imageUrl);
 
+  // Clean the details object to remove undefined values, which Firestore doesn't like
+  const cleanDetails = Object.fromEntries(
+    Object.entries(details).filter(([_, v]) => v !== undefined && v !== '')
+  );
+
   // Save Metadata to Firestore
   await addDoc(collection(db, COLLECTION_NAME), {
-    ...details,
+    ...cleanDetails,
     imageUrl: directLink,
     createdAt: new Date().toISOString() // for sorting
   });
