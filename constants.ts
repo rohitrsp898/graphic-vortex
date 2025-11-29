@@ -127,10 +127,10 @@ export const PORTFOLIO_DATA: Project[] = [
   },
    {
     id: '8',
-    title: 'Time to Revenge',
+    title: 'Transformers: Time to Revenge',
     category: 'Movie Poster',
     imageUrl: getDriveDirectLink('https://drive.google.com/file/d/1BsxCSxb0e-glg0Cr6SY2DsrRQjDnAUzp/view?usp=drive_link'),
-    description: 'The intense battle of transformers',
+    description: "An intense, fiery battle scene from 'Transformers: Time to Revenge.' Multiple Autobots and Decepticons clash in a war-torn city under an orange, smoke-filled sky with explosions all around.",
     year: '2025',
     tools: ['Photoshop'],
     orientation: 'landscape',
