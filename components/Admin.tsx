@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword, onAuthStateChanged, User, signOut } from 'firebase/auth';
-import { uploadProject } from '../services/projectService';
-import { Lock, Loader2, Plus, LogOut, Link as LinkIcon, Home } from 'lucide-react';
+import { uploadProject, getAllProjects } from '../services/projectService';
+import { Lock, Loader2, Plus, LogOut, Link as LinkIcon, Home, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getDriveDirectLink } from '../constants';
 
@@ -23,6 +23,10 @@ export const Admin: React.FC = () => {
   const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
   const [successMsg, setSuccessMsg] = useState('');
 
+  // Category Management
+  const [existingCategories, setExistingCategories] = useState<string[]>([]);
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+
   // Derived state for preview
   const [previewLink, setPreviewLink] = useState('');
 
@@ -31,6 +35,21 @@ export const Admin: React.FC = () => {
       setUser(currentUser);
     });
     return () => unsubscribe();
+  }, []);
+
+  // Fetch existing categories on mount
+  useEffect(() => {
+    const loadCategories = async () => {
+        try {
+            const projects = await getAllProjects();
+            // Extract unique categories and sort them
+            const uniqueCats = Array.from(new Set(projects.map(p => p.category))).sort();
+            setExistingCategories(uniqueCats);
+        } catch (e) {
+            console.error("Failed to load categories", e);
+        }
+    };
+    loadCategories();
   }, []);
 
   useEffect(() => {
@@ -82,6 +101,13 @@ export const Admin: React.FC = () => {
       setImageLink('');
       setTools('');
       setTags('');
+      // If it was a new category, add it to the list locally so we can reuse it immediately
+      if (isCustomCategory && !existingCategories.includes(category)) {
+          setExistingCategories(prev => [...prev, category].sort());
+      }
+      setIsCustomCategory(false);
+      setCategory('');
+
     } catch (err) {
       console.error(err);
       setError("Failed to upload project.");
@@ -198,7 +224,7 @@ export const Admin: React.FC = () => {
                     </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input
                         type="text"
                         placeholder="Project Title"
@@ -206,19 +232,47 @@ export const Admin: React.FC = () => {
                         onChange={(e) => setTitle(e.target.value)}
                         className="bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary outline-none"
                     />
-                     <select
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                        className="bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary outline-none"
-                    >
-                        <option value="">Select Category</option>
-                        <option value="Science Illustration">Science Illustration</option>
-                        <option value="Food Advertisement">Food Advertisement</option>
-                        <option value="Product Advertisement">Product Advertisement</option>
-                        <option value="Brand Advertisement">Brand Advertisement</option>
-                        <option value="Fantasy Illustration">Fantasy Illustration</option>
-                        <option value="Movie Poster">Movie Poster</option>
-                    </select>
+
+                    {/* Dynamic Category Selection */}
+                    {isCustomCategory ? (
+                        <div className="relative">
+                             <input
+                                type="text"
+                                placeholder="Enter New Category Name"
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value)}
+                                className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary outline-none"
+                                autoFocus
+                            />
+                            <button
+                                type="button"
+                                onClick={() => { setIsCustomCategory(false); setCategory(''); }}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white p-1"
+                                title="Cancel custom category"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+                    ) : (
+                        <select
+                            value={category}
+                            onChange={(e) => {
+                                if (e.target.value === '___NEW___') {
+                                    setIsCustomCategory(true);
+                                    setCategory('');
+                                } else {
+                                    setCategory(e.target.value);
+                                }
+                            }}
+                            className="bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-primary outline-none"
+                        >
+                            <option value="">Select Category</option>
+                            {existingCategories.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                            <option value="___NEW___" className="text-primary font-bold">+ Create New Category</option>
+                        </select>
+                    )}
                 </div>
 
                 <textarea
