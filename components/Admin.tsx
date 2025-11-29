@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword, onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { uploadProject } from '../services/projectService';
-import { Lock, Loader2, Plus, LogOut, Link as LinkIcon, ExternalLink } from 'lucide-react';
+import { Lock, Loader2, Plus, LogOut, Link as LinkIcon, Home } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getDriveDirectLink } from '../constants';
 
@@ -90,10 +90,20 @@ export const Admin: React.FC = () => {
     }
   };
 
+  const goHome = () => {
+      window.location.hash = '';
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 p-8 rounded-2xl shadow-2xl">
+        <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 p-8 rounded-2xl shadow-2xl relative">
+          <button
+            onClick={goHome}
+            className="absolute top-4 right-4 text-neutral-500 hover:text-white"
+          >
+            <Home className="w-5 h-5" />
+          </button>
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Lock className="w-8 h-8 text-primary" />
@@ -140,12 +150,20 @@ export const Admin: React.FC = () => {
       <div className="container mx-auto max-w-2xl">
         <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-serif font-bold text-white">Add New Project</h1>
-            <button
-                onClick={() => signOut(auth)}
-                className="flex items-center gap-2 text-neutral-400 hover:text-white"
-            >
-                <LogOut className="w-4 h-4" /> Logout
-            </button>
+            <div className="flex gap-4">
+                <button
+                    onClick={goHome}
+                    className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors"
+                >
+                    <Home className="w-4 h-4" /> View Site
+                </button>
+                <button
+                    onClick={() => signOut(auth)}
+                    className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors"
+                >
+                    <LogOut className="w-4 h-4" /> Logout
+                </button>
+            </div>
         </div>
 
         <motion.div

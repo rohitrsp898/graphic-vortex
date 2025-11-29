@@ -10,14 +10,26 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Simple hash-based routing for admin panel
     const checkHash = () => {
-        setIsAdmin(window.location.hash === '#admin');
+        // More robust check: looks for 'admin' anywhere in the hash
+        // This handles #admin, #/admin, #admin/, etc.
+        const hash = window.location.hash;
+        setIsAdmin(hash.includes('admin'));
     };
 
+    // Check on mount
     checkHash();
+
+    // Listen for hash changes
     window.addEventListener('hashchange', checkHash);
-    return () => window.removeEventListener('hashchange', checkHash);
+
+    // Listen for history navigation (back/forward)
+    window.addEventListener('popstate', checkHash);
+
+    return () => {
+        window.removeEventListener('hashchange', checkHash);
+        window.removeEventListener('popstate', checkHash);
+    };
   }, []);
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
