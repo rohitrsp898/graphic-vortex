@@ -327,7 +327,7 @@ export const Admin: React.FC = () => {
                           <div className="flex-1">
                               <h3 className="font-bold text-red-200 mb-1">Permission Denied</h3>
                               <p className="text-sm text-red-300 mb-3">
-                                  Your Firebase Database is locked. You need to update the Security Rules to allow uploads.
+                                  Your Firebase Database is locked for public viewing. You need to update the Rules to allow <strong>Public Read</strong> and <strong>Admin Write</strong>.
                               </p>
 
                               <a
@@ -340,9 +340,10 @@ export const Admin: React.FC = () => {
                               </a>
 
                               <div className="mt-4 p-3 bg-black/40 rounded-lg border border-neutral-800">
-                                  <p className="text-xs text-neutral-500 mb-2 uppercase font-semibold">Copy & Paste this into Rules:</p>
-                                  <code className="text-xs font-mono text-neutral-300 block overflow-x-auto">
-                                      {`allow read, write: if request.auth != null;`}
+                                  <p className="text-xs text-neutral-500 mb-2 uppercase font-semibold">Copy & Paste this EXACTLY into Rules:</p>
+                                  <code className="text-xs font-mono text-neutral-300 block overflow-x-auto whitespace-pre">
+{`allow read: if true;
+allow write: if request.auth != null;`}
                                   </code>
                               </div>
                           </div>

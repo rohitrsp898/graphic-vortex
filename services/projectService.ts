@@ -18,7 +18,11 @@ export const getAllProjects = async (): Promise<Project[]> => {
 
     // Merge static data (bottom) with dynamic data (top)
     return [...firebaseProjects, ...PORTFOLIO_DATA];
-  } catch (error) {
+  } catch (error: any) {
+    // Specific check to help debugging
+    if (error.code === 'permission-denied') {
+        console.warn("⚠️ PROJECT VISIBILITY ISSUE: Firebase Security Rules are blocking public access. Please set 'allow read: if true;' in your Firestore Rules.");
+    }
     console.error("Error fetching projects:", error);
     // Fallback to static data if firebase fails or is not configured
     return PORTFOLIO_DATA;
