@@ -49,8 +49,9 @@ export const Contact: React.FC = () => {
           </a>
         </div>
 
-        <div className="text-neutral-600 text-sm">
+        <div className="text-neutral-600 text-sm flex flex-col items-center gap-2">
           <p>&copy; {new Date().getFullYear()} {PERSONAL_DETAILS.name} - Graphic Vortex. All rights reserved.</p>
+          <a href="#admin" className="opacity-10 hover:opacity-100 transition-opacity text-xs">Admin Access</a>
         </div>
       </div>
     </footer>
