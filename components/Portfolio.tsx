@@ -4,24 +4,35 @@ import { ArrowRight, X, Calendar, Wrench, Tag as TagIcon } from 'lucide-react';
 import { PORTFOLIO_DATA } from '../constants';
 import { Project } from '../types';
 
+const INITIAL_LIMIT = 10;
+
 export const Portfolio: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  
+  const [showAll, setShowAll] = useState(false);
+
   // Extract unique categories
   const categories = ['All', ...Array.from(new Set(PORTFOLIO_DATA.map(item => item.category)))];
 
   // Filter Data
-  const filteredData = selectedCategory === 'All' 
-    ? PORTFOLIO_DATA 
+  const filteredData = selectedCategory === 'All'
+    ? PORTFOLIO_DATA
     : PORTFOLIO_DATA.filter(item => item.category === selectedCategory);
+
+  // Determine displayed projects
+  const displayedProjects = showAll ? filteredData : filteredData.slice(0, INITIAL_LIMIT);
+
+  // Reset showAll when category changes
+  useEffect(() => {
+    setShowAll(false);
+  }, [selectedCategory]);
 
   return (
     <section id="work" className="bg-neutral-950 relative min-h-screen py-20">
-      
+
       {/* Header & Filter Bar */}
       <div className="container mx-auto px-4 mb-12">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
@@ -50,20 +61,38 @@ export const Portfolio: React.FC = () => {
         </div>
 
         {/* Grid View */}
-        <motion.div 
+        <motion.div
             layout
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
             <AnimatePresence mode="popLayout">
-            {filteredData.map((project) => (
-                <GridProjectCard 
-                    key={project.id} 
-                    project={project} 
+            {displayedProjects.map((project) => (
+                <GridProjectCard
+                    key={project.id}
+                    project={project}
                     onClick={() => setSelectedProject(project)}
                 />
             ))}
             </AnimatePresence>
         </motion.div>
+
+        {/* Explore More Button */}
+        {!showAll && filteredData.length > INITIAL_LIMIT && (
+             <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="flex justify-center mt-16"
+             >
+                <button
+                    onClick={() => setShowAll(true)}
+                    className="px-8 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white hover:text-black text-white transition-all duration-300 flex items-center gap-2 group backdrop-blur-sm shadow-lg"
+                >
+                    Explore More
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
+             </motion.div>
+        )}
 
         {filteredData.length === 0 && (
             <div className="text-center py-20 text-neutral-500">
@@ -75,9 +104,9 @@ export const Portfolio: React.FC = () => {
       {/* Project Detail Modal */}
       <AnimatePresence>
         {selectedProject && (
-          <ProjectModal 
-            project={selectedProject} 
-            onClose={() => setSelectedProject(null)} 
+          <ProjectModal
+            project={selectedProject}
+            onClose={() => setSelectedProject(null)}
           />
         )}
       </AnimatePresence>
@@ -89,7 +118,7 @@ const GridProjectCard: React.FC<{ project: Project; onClick: () => void }> = ({ 
   const [imageLoaded, setImageLoaded] = useState(false);
 
   return (
-    <motion.div 
+    <motion.div
       layout
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -104,7 +133,7 @@ const GridProjectCard: React.FC<{ project: Project; onClick: () => void }> = ({ 
       {!imageLoaded && (
         <div className="absolute inset-0 bg-neutral-800 animate-pulse z-0" />
       )}
-      
+
       <img
         src={project.imageUrl}
         alt={project.title}
@@ -117,7 +146,7 @@ const GridProjectCard: React.FC<{ project: Project; onClick: () => void }> = ({ 
           imageLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'
         }`}
       />
-      
+
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 z-10">
         <p className="text-primary text-xs uppercase tracking-wider mb-2 font-semibold">{project.category}</p>
         <h3 className="text-2xl font-bold text-white font-serif mb-2">{project.title}</h3>
@@ -131,7 +160,7 @@ const GridProjectCard: React.FC<{ project: Project; onClick: () => void }> = ({ 
 
 const ProjectModal: React.FC<{ project: Project; onClose: () => void }> = ({ project, onClose }) => {
     const [imageLoaded, setImageLoaded] = useState(false);
-    
+
     // Lock body scroll when modal is open
     useEffect(() => {
         document.body.style.overflow = 'hidden';
@@ -140,20 +169,20 @@ const ProjectModal: React.FC<{ project: Project; onClose: () => void }> = ({ pro
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8">
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={onClose}
                 className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             />
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0, y: 50, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 50, scale: 0.95 }}
                 className="relative bg-neutral-900 border border-neutral-800 w-full max-w-6xl max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row"
             >
-                <button 
+                <button
                     onClick={onClose}
                     className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-white hover:text-black rounded-full text-white transition-colors"
                 >
