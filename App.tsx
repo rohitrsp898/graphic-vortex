@@ -1,12 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Hero } from './components/Hero';
 import { About } from './components/About';
 import { Portfolio } from './components/Portfolio';
 import { Contact } from './components/Contact';
 import { GeminiAssistant } from './components/GeminiAssistant';
+import { Admin } from './components/Admin';
 
 function App() {
-  
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    // Simple hash-based routing for admin panel
+    const checkHash = () => {
+        setIsAdmin(window.location.hash === '#admin');
+    };
+
+    checkHash();
+    window.addEventListener('hashchange', checkHash);
+    return () => window.removeEventListener('hashchange', checkHash);
+  }, []);
+
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
     const element = document.getElementById(id);
@@ -19,6 +32,10 @@ function App() {
     e.preventDefault();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  if (isAdmin) {
+      return <Admin />;
+  }
 
   return (
     <main className="w-full bg-neutral-950 text-white">

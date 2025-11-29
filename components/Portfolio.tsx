@@ -1,23 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, X, Calendar, Wrench, Tag as TagIcon } from 'lucide-react';
-import { PORTFOLIO_DATA } from '../constants';
+import { ArrowRight, X, Calendar, Wrench, Tag as TagIcon, Loader2 } from 'lucide-react';
+import { getAllProjects } from '../services/projectService';
 import { Project } from '../types';
 
 const INITIAL_LIMIT = 10;
 
 export const Portfolio: React.FC = () => {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showAll, setShowAll] = useState(false);
 
+  // Fetch Data
+  useEffect(() => {
+    const loadProjects = async () => {
+        try {
+            const data = await getAllProjects();
+            setProjects(data);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
+    }
+    loadProjects();
+  }, []);
+
   // Extract unique categories
-  const categories = ['All', ...Array.from(new Set(PORTFOLIO_DATA.map(item => item.category)))];
+  const categories = ['All', ...Array.from(new Set(projects.map(item => item.category)))];
 
   // Filter Data
   const filteredData = selectedCategory === 'All'
-    ? PORTFOLIO_DATA
-    : PORTFOLIO_DATA.filter(item => item.category === selectedCategory);
+    ? projects
+    : projects.filter(item => item.category === selectedCategory);
 
   // Determine displayed projects
   const displayedProjects = showAll ? filteredData : filteredData.slice(0, INITIAL_LIMIT);
@@ -43,61 +60,69 @@ export const Portfolio: React.FC = () => {
             <p className="text-neutral-400 max-w-2xl mx-auto">Curated collection of digital experiences. Click on any project to see details.</p>
         </motion.div>
 
-        {/* Categories */}
-        <div className="flex flex-wrap justify-center gap-2 mb-12">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-full text-sm border transition-all duration-300 ${
-                selectedCategory === cat
-                  ? 'bg-white text-black border-white font-medium'
-                  : 'bg-transparent text-neutral-400 border-neutral-800 hover:border-neutral-600 hover:text-white'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+        {loading ? (
+             <div className="flex justify-center py-20">
+                 <Loader2 className="w-8 h-8 text-primary animate-spin" />
+             </div>
+        ) : (
+            <>
+                {/* Categories */}
+                <div className="flex flex-wrap justify-center gap-2 mb-12">
+                {categories.map((cat) => (
+                    <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`px-4 py-2 rounded-full text-sm border transition-all duration-300 ${
+                        selectedCategory === cat
+                        ? 'bg-white text-black border-white font-medium'
+                        : 'bg-transparent text-neutral-400 border-neutral-800 hover:border-neutral-600 hover:text-white'
+                    }`}
+                    >
+                    {cat}
+                    </button>
+                ))}
+                </div>
 
-        {/* Grid View */}
-        <motion.div
-            layout
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-        >
-            <AnimatePresence mode="popLayout">
-            {displayedProjects.map((project) => (
-                <GridProjectCard
-                    key={project.id}
-                    project={project}
-                    onClick={() => setSelectedProject(project)}
-                />
-            ))}
-            </AnimatePresence>
-        </motion.div>
-
-        {/* Explore More Button */}
-        {!showAll && filteredData.length > INITIAL_LIMIT && (
-             <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="flex justify-center mt-16"
-             >
-                <button
-                    onClick={() => setShowAll(true)}
-                    className="px-8 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white hover:text-black text-white transition-all duration-300 flex items-center gap-2 group backdrop-blur-sm shadow-lg"
+                {/* Grid View */}
+                <motion.div
+                    layout
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
                 >
-                    Explore More
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-             </motion.div>
-        )}
+                    <AnimatePresence mode="popLayout">
+                    {displayedProjects.map((project) => (
+                        <GridProjectCard
+                            key={project.id}
+                            project={project}
+                            onClick={() => setSelectedProject(project)}
+                        />
+                    ))}
+                    </AnimatePresence>
+                </motion.div>
 
-        {filteredData.length === 0 && (
-            <div className="text-center py-20 text-neutral-500">
-                No projects found in this category.
-            </div>
+                {/* Explore More Button */}
+                {!showAll && filteredData.length > INITIAL_LIMIT && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="flex justify-center mt-16"
+                    >
+                        <button
+                            onClick={() => setShowAll(true)}
+                            className="px-8 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white hover:text-black text-white transition-all duration-300 flex items-center gap-2 group backdrop-blur-sm shadow-lg"
+                        >
+                            Explore More
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </button>
+                    </motion.div>
+                )}
+
+                {filteredData.length === 0 && (
+                    <div className="text-center py-20 text-neutral-500">
+                        No projects found in this category.
+                    </div>
+                )}
+            </>
         )}
       </div>
 
