@@ -46,6 +46,7 @@ export const BRAND_DETAILS = {
   showLogoImage: true
 };
 
+//Static Images so that portfolio never look empty
 export const PORTFOLIO_DATA: Project[] = [
   {
     id: '1',
