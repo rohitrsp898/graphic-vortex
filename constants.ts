@@ -2,7 +2,7 @@ import { SocialLink, Project } from './types';
 
 // Helper to convert Drive view links to direct image links
 // Using lh3.googleusercontent.com is often more reliable for hosting images than drive.google.com/uc
-const getDriveDirectLink = (url: string) => {
+export const getDriveDirectLink = (url: string) => {
   try {
     // Extract ID from /file/d/ID/ or /open?id=ID
     const match = url.match(/\/d\/(.+?)(\/|\?|$)/) || url.match(/id=(.+?)($|&)/);
@@ -22,8 +22,8 @@ export const SOCIAL_LINKS: SocialLink[] = [
 ];
 
 export const ABOUT_CONTENT = `
- I am a passionate graphic designer with over 3+ years of experience in branding, digital illustration, and graphic design. 
- My journey began with a love for traditional art, which evolved into a career in digital creativity. 
+ I am a passionate graphic designer with over 3+ years of experience in branding, digital illustration, and graphic design.
+ My journey began with a love for traditional art, which evolved into a career in digital creativity.
  I believe that good design is not just about making things look good—it's about effective communication and solving problems visually. Every line, color, and shape serves a purpose.
 `;
 
@@ -94,7 +94,7 @@ export const PORTFOLIO_DATA: Project[] = [
   {
     id: '5',
     title: "Haunted Witch House",
-    category: "Fantasy Poster",
+    category: "Fantasy Illustration",
     imageUrl: getDriveDirectLink("https://drive.google.com/file/d/1ql61-4LzbHcRTam-VTWpxAdadLzgMDxw/view?usp=drive_link"),
     description: "A dark and atmospheric illustration depicting an eerie witch house in a stormy night setting. Lit windows, pumpkins, dead trees, and dramatic lighting create a haunting visual narrative.",
     year: "2025",
@@ -118,7 +118,7 @@ export const PORTFOLIO_DATA: Project[] = [
     title: 'Feel the Speed',
     category: 'Product Advertisement',
     imageUrl: getDriveDirectLink('https://drive.google.com/file/d/1m9B9V6dJG5rjCzBSQFUYaQk8wHgbdgUA/view?usp=drive_link'),
-    description: 'Beyond the Sound where speed feels',
+    description: 'Beyond Sound',
     year: '2025',
     tools: ['Photoshop'],
     orientation: 'portrait',
