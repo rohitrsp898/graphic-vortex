@@ -116,10 +116,10 @@ export const PORTFOLIO_DATA: Project[] = [
   },
    {
     id: '7',
-    title: 'Feel the Speed',
+    title: 'Porsche RSR',
     category: 'Product Advertisement',
     imageUrl: getDriveDirectLink('https://drive.google.com/file/d/1m9B9V6dJG5rjCzBSQFUYaQk8wHgbdgUA/view?usp=drive_link'),
-    description: 'Beyond Sound',
+    description: 'Speed Beyond Sound',
     year: '2025',
     tools: ['Photoshop'],
     orientation: 'portrait',
